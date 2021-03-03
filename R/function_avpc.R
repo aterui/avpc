@@ -24,30 +24,30 @@
 
     # extract model data frame ------------------------------------------------
 
-    if(length(u) > 1) stop("u must be a single variable")
+    if (length(u) > 1) stop("u must be a single variable")
 
-    if(!any(u %in% attributes(stats::terms(m))$term.labels)) stop("invalid variable input u; check varaible name")
+    if (!any(u %in% attributes(stats::terms(m))$term.labels)) stop("invalid variable input u; check varaible name")
 
-    if(is.null(v)) {
+    if (is.null(v)) {
 
       v_var_names <- attributes(stats::terms(m))$term.labels
       v <- v_var_names[!(v_var_names %in% u)]
 
     } else {
 
-      if(!all(v %in% attributes(stats::terms(m))$term.labels)) stop("invalid variable input v; check varaible name")
+      if (!all(v %in% attributes(stats::terms(m))$term.labels)) stop("invalid variable input v; check varaible name")
 
     }
 
 
     # division by model class
-    if(any(class(m) %in% c("lm", "rlm", "glm"))) {
+    if (any(class(m) %in% c("lm", "rlm", "glm"))) {
 
       m_frame <- m$model
 
     } else {
 
-      if(any(class(m) %in% "lmerMod")) {
+      if (any(class(m) %in% "lmerMod")) {
         m_frame <- m@frame
       } else {
         stop("the provided model class is not supported")
@@ -56,9 +56,9 @@
     }
 
 
-    if(!all(unlist(lapply(m_frame, class)) %in% c("numeric", "character"))) stop("variables contain classes of other than numeric or character")
+    if (!all(unlist(lapply(m_frame, class)) %in% c("numeric", "character"))) stop("variables contain classes of other than numeric or character")
 
-    if(any(unlist(lapply(m_frame, class)) %in% c("character"))) {
+    if (any(unlist(lapply(m_frame, class)) %in% c("character"))) {
 
       # character variable(s) exist
 
@@ -68,7 +68,7 @@
         dplyr::summarize(dplyr::across(.cols = where(is.character),
                                        .fns = ~ dplyr::n_distinct(.x)))
 
-      if(any(n_levels > 2)) stop("Currently, this function does not support categorical variables with > 2 levels.
+      if (any(n_levels > 2)) stop("Currently, this function does not support categorical variables with > 2 levels.
                                   Consider converting the variable(s) to dummy binary variables (0, 1)")
 
       m_chr <- m_frame %>%
@@ -147,16 +147,16 @@
     df_uv2 <- dplyr::tibble(Intercept = 1, df_uv2)
 
     # get link function from the model object if var_transform "null"
-    if(is.null(var_transform)) {
+    if (is.null(var_transform)) {
       model_family <- stats::family(m)
       var_transform <- model_family$link
     }
 
-    if(!any(var_transform %in% c("log", "logit", "identity"))) stop("var_transform must be either log, logit or identity")
+    if (!any(var_transform %in% c("log", "logit", "identity"))) stop("var_transform must be either log, logit or identity")
 
 
     # for model classes lm, rlm, glm
-    if(any(class(m) %in% c("lm", "rlm", "glm"))) {
+    if (any(class(m) %in% c("lm", "rlm", "glm"))) {
 
       names(m$coefficients) <- c("Intercept", attributes(stats::terms(m))$term.labels)
       v_var_id <- match(names(m$coefficients), names(df_uv1)) %>%
@@ -171,13 +171,13 @@
       m_uv1 <- data.matrix(df_uv1[, v_var_id])
       m_uv2 <- data.matrix(df_uv2[, v_var_id])
 
-      if(any(rownames(v_b) != colnames(m_uv1))) stop("error in matrix organization")
-      if(any(rownames(v_b) != colnames(m_uv2))) stop("error in matrix organization")
+      if (any(rownames(v_b) != colnames(m_uv1))) stop("error in matrix organization")
+      if (any(rownames(v_b) != colnames(m_uv2))) stop("error in matrix organization")
 
     }
 
     # for model class lmerMod
-    if(any(class(m) %in% "lmerMod")) {
+    if (any(class(m) %in% "lmerMod")) {
 
       names(m@beta) <- c("Intercept", attributes(stats::terms(m))$term.labels)
       v_var_id <- match(names(m@beta), names(df_uv1)) %>%
@@ -192,23 +192,23 @@
       m_uv1 <- data.matrix(df_uv1[, v_var_id])
       m_uv2 <- data.matrix(df_uv2[, v_var_id])
 
-      if(any(rownames(v_b) != colnames(m_uv1))) stop("error in matrix organization")
-      if(any(rownames(v_b) != colnames(m_uv2))) stop("error in matrix organization")
+      if (any(rownames(v_b) != colnames(m_uv1))) stop("error in matrix organization")
+      if (any(rownames(v_b) != colnames(m_uv2))) stop("error in matrix organization")
 
     }
 
     # division by var_transform types
-    if(var_transform == "identity") {
+    if (var_transform == "identity") {
       e_y1 <- m_uv1 %*% v_b
       e_y2 <- m_uv2 %*% v_b
     }
 
-    if(var_transform == "log") {
+    if (var_transform == "log") {
       e_y1 <- exp(m_uv1 %*% v_b)
       e_y2 <- exp(m_uv2 %*% v_b)
     }
 
-    if(var_transform == "logit") {
+    if (var_transform == "logit") {
       e_y1 <- ilogit(m_uv1 %*% v_b)
       e_y2 <- ilogit(m_uv2 %*% v_b)
     }
