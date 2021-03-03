@@ -52,37 +52,64 @@
     } else {
 
       if (any(class(m) %in% "lmerMod")) {
-        m_frame <- m@frame
+        v_fixed_var <- attributes(stats::terms(m))$term.labels
+        m_frame <- m@frame %>%
+          dplyr::select(v_fixed_var)
       } else {
         stop("the provided model class is not supported")
       }
 
     }
 
+    # acceptable and input variable types
+    var_class <- c("numeric", "integer", "character", "factor")
+    col_class <- unlist(lapply(m_frame, class))
 
-    if (!all(unlist(lapply(m_frame, class)) %in% c("numeric", "character"))) {
-      stop("variables contain classes of other than numeric or character")
+    if (!all(col_class %in% var_class)) {
+      stop("variables contain unsupported classes.
+            Supported classses: numeric, interger, character, or factor")
     }
 
-    if (any(unlist(lapply(m_frame, class)) %in% c("character"))) {
+    if (any(col_class %in% c("character", "factor"))) {
 
-      # character variable(s) exist
+      # character/factor variable(s) exist
 
       ## extract character variables and convert them to numeric values
-      ## stop if there are > 2 character levels in any character variable
-      n_levels <- m_frame %>%
+      ## stop if there are > 2 levels in any character variable
+      n_chr_levels <- m_frame %>%
         dplyr::summarize(dplyr::across(.cols = where(is.character),
                                        .fns = ~ dplyr::n_distinct(.x)))
+
+      n_fct_levels <- m_frame %>%
+        dplyr::summarize(dplyr::across(.cols = where(is.factor),
+                                       .fns = ~ dplyr::n_distinct(.x)))
+
+      n_levels <- unlist(c(n_chr_levels, n_fct_levels))
 
       if (any(n_levels > 2)) {
         stop("Currently, this function does not support categorical variables with > 2 levels.
               Consider converting the variable(s) to dummy binary variables (0, 1)")
       }
 
-      m_chr <- m_frame %>%
-        dplyr::summarize(dplyr::across(.cols = where(is.character),
-                                       .fns = ~ as.numeric(as.factor(.x)) - 1)) %>%
+      ## extract character variables
+      if (any(col_class %in% c("character"))) {
+        m_chr <- m_frame %>%
+          dplyr::summarize(dplyr::across(.cols = where(is.character),
+                                         .fns = ~ as.numeric(as.factor(.x)) - 1)) %>%
+          dplyr::mutate(id = as.numeric(rownames(m_frame)))
+      } else {
+        m_chr <- NULL
+      }
+
+      ## extract factor variables
+      if (any(col_class %in% c("character"))) {
+        m_fct <- m_frame %>%
+        dplyr::summarize(dplyr::across(.cols = where(is.factor),
+                                       .fns = ~ as.numeric(.x) - 1)) %>%
         dplyr::mutate(id = as.numeric(rownames(m_frame)))
+      } else {
+        m_fct <- NULL
+      }
 
       ## extract numeric variables
       m_dbl <- m_frame %>%
@@ -95,8 +122,8 @@
         dplyr::select(-.data$id) %>%
         dplyr::tibble()
 
-      message("Character variable(s) detected in the data.
-               These variables were coverted to dummy binary variables (0, 1)")
+      message("Character/factor variable(s) detected in the data.
+               These variables were coverted to dummy binary variable(s)")
 
     } else {
 
@@ -232,6 +259,8 @@
       e_y1 <- ilogit(m_uv1 %*% v_b)
       e_y2 <- ilogit(m_uv2 %*% v_b)
     }
+
+    message(paste("link function used for variable transformation:", var_transform, "- an inverse function was used to estimate an average predictive comparison"))
 
     # estimate
     numerator <- sum(df_uv$weight * (e_y2 - e_y1) * df_uv$sign)
