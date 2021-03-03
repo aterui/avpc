@@ -160,8 +160,8 @@
       var_transform <- model_family$link
     }
 
-    if (!any(var_transform %in% c("log", "logit", "identity"))) {
-      stop("var_transform must be either log, logit or identity")
+    if (!any(var_transform %in% c("log", "log10". "logit", "identity"))) {
+      stop("var_transform must be either log, log10, logit or identity")
     }
 
 
@@ -221,6 +221,11 @@
     if (var_transform == "log") {
       e_y1 <- exp(m_uv1 %*% v_b)
       e_y2 <- exp(m_uv2 %*% v_b)
+    }
+
+    if (var_transform == "log10") {
+      e_y1 <- 10^(m_uv1 %*% v_b)
+      e_y2 <- 10^(m_uv2 %*% v_b)
     }
 
     if (var_transform == "logit") {
