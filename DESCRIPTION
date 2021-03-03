@@ -1,5 +1,5 @@
 Package: avpc
-Title: What the Package Does (One Line, Title Case)
+Title: Average Predictive Comparison
 Version: 0.0.0.9000
 Authors@R: 
     person(given = "Akira",
