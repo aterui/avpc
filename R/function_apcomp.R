@@ -160,7 +160,7 @@
       var_transform <- model_family$link
     }
 
-    if (!any(var_transform %in% c("log", "log10". "logit", "identity"))) {
+    if (!any(var_transform %in% c("log", "log10", "logit", "identity"))) {
       stop("var_transform must be either log, log10, logit or identity")
     }
 
