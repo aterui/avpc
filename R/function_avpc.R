@@ -1,38 +1,41 @@
-%>%
-#' inverse logit function
-
-  ilogit <- function(x) {
-    1 / (1 + exp(-x))
-  }
 
   utils::globalVariables('where')
 
 #' Average predictive comparisons
 #'
-#' @param m model object. Accept model classes lm, rlm, glm, lmerMod
-#' @param u a single character indicating input variable of interest.
-#' @param v characters indicating other variables. select other than u by default
-#' @param var_transform
+#' @param m Model object. The function accepts model classes \code{lm}, \code{'rlm'}, \code{'glm'}, \code{'lmerMod'}
+#' @param u Character string indicating input variable of interest.
+#' @param v Character string indicating variables other than the input variable of interest. By default, the function uses all the variables except \code{u}.
+#' @param var_transform Function transforming the scale of the response variable. If NULL (default), the function extracts an inverse link function from the model object \code{m}. Accepts either \code{'log'}, \code{'logit'}, or \code{'identity'}.
 #'
 #' @importFrom dplyr %>%
+#' @importFrom rlang .data
 #'
 #' @export
 
 
   avpc <- function(m, u, v = NULL, var_transform = NULL) {
 
+    # inverse logit function --------------------------------------------------
+
+    ilogit <- function(x) {
+      1 / (1 + exp(-x))
+    }
+
     # extract model data frame ------------------------------------------------
 
-    if(!any(u %in% attributes(terms(m))$term.labels)) stop('invalid variable input u; check varaible name')
+    if(length(u) > 1) stop('u must be a single variable')
+
+    if(!any(u %in% attributes(stats::terms(m))$term.labels)) stop('invalid variable input u; check varaible name')
 
     if(is.null(v)) {
 
-      v_var_names <- attributes(terms(m))$term.labels
+      v_var_names <- attributes(stats::terms(m))$term.labels
       v <- v_var_names[!(v_var_names %in% u)]
 
     } else {
 
-      if(!all(v %in% attributes(terms(m))$term.labels)) stop('invalid variable input v; check varaible name')
+      if(!all(v %in% attributes(stats::terms(m))$term.labels)) stop('invalid variable input v; check varaible name')
 
     }
 
@@ -65,7 +68,8 @@
         dplyr::summarize(dplyr::across(.cols = where(is.character),
                                        .fns = ~ dplyr::n_distinct(.x)))
 
-      if(any(n_levels > 2)) stop('Currently, this function does not support categorical variables with > 2 levels. Consider converting the variable(s) to dummy binary variables (0, 1)')
+      if(any(n_levels > 2)) stop('Currently, this function does not support categorical variables with > 2 levels.
+                                  Consider converting the variable(s) to dummy binary variables (0, 1)')
 
       m_chr <- m_frame %>%
         dplyr::summarize(dplyr::across(.cols = where(is.character),
@@ -83,7 +87,8 @@
         dplyr::select(-.data$id) %>%
         dplyr::tibble()
 
-      message('Character variable(s) detected in the data. These variables were coverted to dummy binary variables (0, 1)')
+      message('Character variable(s) detected in the data.
+               These variables were coverted to dummy binary variables (0, 1)')
 
     } else {
 
@@ -153,7 +158,7 @@
     # for model classes lm, rlm, glm
     if(any(class(m) %in% c('lm', 'rlm', 'glm'))) {
 
-      names(m$coefficients) <- c('Intercept', attributes(terms(m))$term.labels)
+      names(m$coefficients) <- c('Intercept', attributes(stats::terms(m))$term.labels)
       v_var_id <- match(names(m$coefficients), names(df_uv1)) %>%
         stats::na.omit() %>%
         c()
@@ -174,7 +179,7 @@
     # for model class lmerMod
     if(any(class(m) %in% 'lmerMod')) {
 
-      names(m@beta) <- c('Intercept', attributes(terms(m))$term.labels)
+      names(m@beta) <- c('Intercept', attributes(stats::terms(m))$term.labels)
       v_var_id <- match(names(m@beta), names(df_uv1)) %>%
         stats::na.omit() %>%
         c()
