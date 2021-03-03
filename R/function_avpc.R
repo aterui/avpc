@@ -1,4 +1,4 @@
-
+%>%
 #' inverse logit function
 
   ilogit <- function(x) {
@@ -63,24 +63,24 @@
       ## stop if there are > 2 character levels in any character variable
       n_levels <- m_frame %>%
         dplyr::summarize(dplyr::across(.cols = where(is.character),
-                                       .fns = ~ dplyr::n_distinct()(.x)))
+                                       .fns = ~ dplyr::n_distinct(.x)))
 
       if(any(n_levels > 2)) stop('Currently, this function does not support categorical variables with > 2 levels. Consider converting the variable(s) to dummy binary variables (0, 1)')
 
       m_chr <- m_frame %>%
         dplyr::summarize(dplyr::across(.cols = where(is.character),
                                        .fns = ~ as.numeric(as.factor(.x)) - 1)) %>%
-        dplyr::mutate(id = as.numeric(rownames(.)))
+        dplyr::mutate(id = as.numeric(rownames(.data)))
 
       ## extract numeric variables
       m_dbl <- m_frame %>%
         dplyr::summarize(dplyr::across(.cols = where(is.numeric))) %>%
-        dplyr::mutate(id = as.numeric(rownames(.)))
+        dplyr::mutate(id = as.numeric(rownames(.data)))
 
       ## combine numeric and character variables
       mod <- m_chr %>%
         dplyr::left_join(m_dbl, by = 'id') %>%
-        dplyr::select(-id) %>%
+        dplyr::select(-.data$id) %>%
         dplyr::tibble()
 
       message('Character variable(s) detected in the data. These variables were coverted to dummy binary variables (0, 1)')
@@ -98,27 +98,27 @@
 
     # frame for v variables
     X1 <- X2 <- mod %>% dplyr::select(dplyr::all_of(v))
-    X <- X1 %>% dplyr::mutate(id = as.numeric(rownames(.)))
+    X <- X1 %>% dplyr::mutate(id = as.numeric(rownames(.data)))
 
     # mahalanobis distance for a set of v variables
-    m_cov <- cov(X1)
-    m_dist <- apply(X1, 1, function(row_i) mahalanobis(X2, row_i, m_cov))
+    m_cov <- stats::cov(X1)
+    m_dist <- apply(X1, 1, function(row_i) stats::mahalanobis(X2, row_i, m_cov))
     df_v <-  dplyr::tibble(sq_distance = c(m_dist),
                            row_id = rep(seq_len(nrow(m_dist)), times = ncol(m_dist)),
                            col_id = rep(seq_len(ncol(m_dist)), each = nrow(m_dist))) %>%
-      dplyr::mutate(weight = 1/(1 + sq_distance))
+      dplyr::mutate(weight = 1/(1 + .data$sq_distance))
 
     # combine with input u
     m_u <- mod %>%
       dplyr::select(dplyr::all_of(u)) %>%
       dplyr::rename(u_input = dplyr::all_of(u)) %>%
-      dplyr::mutate(id = as.numeric(rownames(.)))
+      dplyr::mutate(id = as.numeric(rownames(.data)))
 
     df_uv <- df_v %>%
       dplyr::left_join(m_u, by = c('row_id' = 'id')) %>%
-      dplyr::rename(u1 = u_input) %>%
+      dplyr::rename(u1 = .data$u_input) %>%
       dplyr::left_join(m_u, by = c('col_id' = 'id')) %>%
-      dplyr::rename(u2 = u_input) %>%
+      dplyr::rename(u2 = .data$u_input) %>%
       dplyr::mutate(sign = ifelse(u2 - u1 >= 0, 1, -1)) %>%
       dplyr::left_join(X, by = c('row_id' = 'id'), suffix = c('_v1', '_v2')) %>%
       dplyr::left_join(X, by = c('col_id' = 'id'), suffix = c('_v1', '_v2'))
@@ -127,9 +127,9 @@
     # average predictive comparison -------------------------------------------
 
     # input u and other variables v (note: v is v1 irrespective of input u)
-    u1 <- df_uv %>% dplyr::pull(u1)
-    u2 <- df_uv %>% dplyr::pull(u2)
-    df_v1 <- df_uv %>% dplyr::summarize(dplyr::across(ends_with('v1')))
+    u1 <- df_uv %>% dplyr::pull(.data$u1)
+    u2 <- df_uv %>% dplyr::pull(.data$u2)
+    df_v1 <- df_uv %>% dplyr::summarize(dplyr::across(dplyr::ends_with('v1')))
 
     # input low
     df_uv1 <- dplyr::tibble(u1 = u1, df_v1)
@@ -143,7 +143,7 @@
 
     # get link function from the model object if var_transform 'null'
     if(is.null(var_transform)) {
-      model_family <- family(m)
+      model_family <- stats::family(m)
       var_transform <- model_family$link
     }
 
@@ -155,7 +155,7 @@
 
       names(m$coefficients) <- c('Intercept', attributes(terms(m))$term.labels)
       v_var_id <- match(names(m$coefficients), names(df_uv1)) %>%
-        na.omit() %>%
+        stats::na.omit() %>%
         c()
 
       # vector of regression coefs
@@ -176,7 +176,7 @@
 
       names(m@beta) <- c('Intercept', attributes(terms(m))$term.labels)
       v_var_id <- match(names(m@beta), names(df_uv1)) %>%
-        na.omit() %>%
+        stats::na.omit() %>%
         c()
 
       # vector of regression coefs
