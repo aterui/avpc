@@ -14,7 +14,7 @@
 #' @export
 
 
-  avpc <- function(m, u, v = NULL, var_transform = NULL) {
+  apcomp <- function(m, u, v = NULL, var_transform = NULL) {
 
     # inverse logit function --------------------------------------------------
 
@@ -26,7 +26,9 @@
 
     if (length(u) > 1) stop("u must be a single variable")
 
-    if (!any(u %in% attributes(stats::terms(m))$term.labels)) stop("invalid variable input u; check varaible name")
+    if (!any(u %in% attributes(stats::terms(m))$term.labels)) {
+      stop("invalid variable input u; check varaible name")
+    }
 
     if (is.null(v)) {
 
@@ -35,7 +37,9 @@
 
     } else {
 
-      if (!all(v %in% attributes(stats::terms(m))$term.labels)) stop("invalid variable input v; check varaible name")
+      if (!all(v %in% attributes(stats::terms(m))$term.labels)) {
+        stop("invalid variable input v; check varaible name")
+      }
 
     }
 
@@ -56,7 +60,9 @@
     }
 
 
-    if (!all(unlist(lapply(m_frame, class)) %in% c("numeric", "character"))) stop("variables contain classes of other than numeric or character")
+    if (!all(unlist(lapply(m_frame, class)) %in% c("numeric", "character"))) {
+      stop("variables contain classes of other than numeric or character")
+    }
 
     if (any(unlist(lapply(m_frame, class)) %in% c("character"))) {
 
@@ -68,8 +74,10 @@
         dplyr::summarize(dplyr::across(.cols = where(is.character),
                                        .fns = ~ dplyr::n_distinct(.x)))
 
-      if (any(n_levels > 2)) stop("Currently, this function does not support categorical variables with > 2 levels.
-                                  Consider converting the variable(s) to dummy binary variables (0, 1)")
+      if (any(n_levels > 2)) {
+        stop("Currently, this function does not support categorical variables with > 2 levels.
+              Consider converting the variable(s) to dummy binary variables (0, 1)")
+      }
 
       m_chr <- m_frame %>%
         dplyr::summarize(dplyr::across(.cols = where(is.character),
@@ -102,16 +110,16 @@
     # get pairs for u and v ---------------------------------------------------
 
     # frame for v variables
-    X1 <- X2 <- mod %>% dplyr::select(dplyr::all_of(v))
-    X <- X1 %>% dplyr::mutate(id = as.numeric(rownames(.data)))
+    m_x1 <- m_x2 <- mod %>% dplyr::select(dplyr::all_of(v))
+    m_x <- m_x1 %>% dplyr::mutate(id = as.numeric(rownames(.data)))
 
     # mahalanobis distance for a set of v variables
-    m_cov <- stats::cov(X1)
-    m_dist <- apply(X1, 1, function(row_i) stats::mahalanobis(X2, row_i, m_cov))
+    m_cov <- stats::cov(m_x1)
+    m_dist <- apply(m_x1, 1, function(row_i) stats::mahalanobis(m_x2, row_i, m_cov))
     df_v <-  dplyr::tibble(sq_distance = c(m_dist),
                            row_id = rep(seq_len(nrow(m_dist)), times = ncol(m_dist)),
                            col_id = rep(seq_len(ncol(m_dist)), each = nrow(m_dist))) %>%
-      dplyr::mutate(weight = 1/(1 + .data$sq_distance))
+      dplyr::mutate(weight = 1 / (1 + .data$sq_distance))
 
     # combine with input u
     m_u <- mod %>%
@@ -125,8 +133,8 @@
       dplyr::left_join(m_u, by = c("col_id" = "id")) %>%
       dplyr::rename(u2 = .data$u_input) %>%
       dplyr::mutate(sign = ifelse(u2 - u1 >= 0, 1, -1)) %>%
-      dplyr::left_join(X, by = c("row_id" = "id"), suffix = c("_v1", "_v2")) %>%
-      dplyr::left_join(X, by = c("col_id" = "id"), suffix = c("_v1", "_v2"))
+      dplyr::left_join(m_x, by = c("row_id" = "id"), suffix = c("_v1", "_v2")) %>%
+      dplyr::left_join(m_x, by = c("col_id" = "id"), suffix = c("_v1", "_v2"))
 
 
     # average predictive comparison -------------------------------------------
@@ -152,7 +160,9 @@
       var_transform <- model_family$link
     }
 
-    if (!any(var_transform %in% c("log", "logit", "identity"))) stop("var_transform must be either log, logit or identity")
+    if (!any(var_transform %in% c("log", "logit", "identity"))) {
+      stop("var_transform must be either log, logit or identity")
+    }
 
 
     # for model classes lm, rlm, glm
@@ -171,8 +181,13 @@
       m_uv1 <- data.matrix(df_uv1[, v_var_id])
       m_uv2 <- data.matrix(df_uv2[, v_var_id])
 
-      if (any(rownames(v_b) != colnames(m_uv1))) stop("error in matrix organization")
-      if (any(rownames(v_b) != colnames(m_uv2))) stop("error in matrix organization")
+      if (any(rownames(v_b) != colnames(m_uv1))) {
+        stop("error in matrix organization")
+      }
+
+      if (any(rownames(v_b) != colnames(m_uv2))) {
+        stop("error in matrix organization")
+      }
 
     }
 
@@ -221,4 +236,3 @@
     return(list(estimate = est, df_uv = df_uv))
 
   }
-

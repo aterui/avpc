@@ -4,7 +4,7 @@
 \name{avpc-package}
 \alias{avpc}
 \alias{avpc-package}
-\title{avpc: What the Package Does (One Line, Title Case)}
+\title{avpc: Average Predictive Comparison}
 \description{
 Perform average predictive comparisons.
 }
