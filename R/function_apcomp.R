@@ -82,12 +82,12 @@
       m_chr <- m_frame %>%
         dplyr::summarize(dplyr::across(.cols = where(is.character),
                                        .fns = ~ as.numeric(as.factor(.x)) - 1)) %>%
-        dplyr::mutate(id = as.numeric(rownames(.data)))
+        dplyr::mutate(id = as.numeric(rownames(m_frame)))
 
       ## extract numeric variables
       m_dbl <- m_frame %>%
         dplyr::summarize(dplyr::across(.cols = where(is.numeric))) %>%
-        dplyr::mutate(id = as.numeric(rownames(.data)))
+        dplyr::mutate(id = as.numeric(rownames(m_frame)))
 
       ## combine numeric and character variables
       mod <- m_chr %>%
@@ -111,7 +111,7 @@
 
     # frame for v variables
     m_x1 <- m_x2 <- mod %>% dplyr::select(dplyr::all_of(v))
-    m_x <- m_x1 %>% dplyr::mutate(id = as.numeric(rownames(.data)))
+    m_x <- m_x1 %>% dplyr::mutate(id = as.numeric(rownames(m_x1)))
 
     # mahalanobis distance for a set of v variables
     m_cov <- stats::cov(m_x1)
@@ -125,7 +125,7 @@
     m_u <- mod %>%
       dplyr::select(dplyr::all_of(u)) %>%
       dplyr::rename(u_input = dplyr::all_of(u)) %>%
-      dplyr::mutate(id = as.numeric(rownames(.data)))
+      dplyr::mutate(id = as.numeric(rownames(mod)))
 
     df_uv <- df_v %>%
       dplyr::left_join(m_u, by = c("row_id" = "id")) %>%
