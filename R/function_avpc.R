@@ -1,12 +1,12 @@
 
-  utils::globalVariables('where')
+  utils::globalVariables("where")
 
 #' Average predictive comparisons
 #'
-#' @param m Model object. The function accepts model classes \code{lm}, \code{'rlm'}, \code{'glm'}, \code{'lmerMod'}
+#' @param m Model object. The function accepts model classes \code{"lm"}, \code{"rlm"}, \code{"glm"}, \code{"lmerMod"}
 #' @param u Character string indicating input variable of interest.
 #' @param v Character string indicating variables other than the input variable of interest. By default, the function uses all the variables except \code{u}.
-#' @param var_transform Function transforming the scale of the response variable. If NULL (default), the function extracts an inverse link function from the model object \code{m}. Accepts either \code{'log'}, \code{'logit'}, or \code{'identity'}.
+#' @param var_transform Function transforming the scale of the response variable. If NULL (default), the function extracts an inverse link function from the model object \code{m}. Accepts either \code{"log"}, \code{"logit"}, or \code{"identity"}.
 #'
 #' @importFrom dplyr %>%
 #' @importFrom rlang .data
@@ -24,9 +24,9 @@
 
     # extract model data frame ------------------------------------------------
 
-    if(length(u) > 1) stop('u must be a single variable')
+    if(length(u) > 1) stop("u must be a single variable")
 
-    if(!any(u %in% attributes(stats::terms(m))$term.labels)) stop('invalid variable input u; check varaible name')
+    if(!any(u %in% attributes(stats::terms(m))$term.labels)) stop("invalid variable input u; check varaible name")
 
     if(is.null(v)) {
 
@@ -35,30 +35,30 @@
 
     } else {
 
-      if(!all(v %in% attributes(stats::terms(m))$term.labels)) stop('invalid variable input v; check varaible name')
+      if(!all(v %in% attributes(stats::terms(m))$term.labels)) stop("invalid variable input v; check varaible name")
 
     }
 
 
     # division by model class
-    if(any(class(m) %in% c('lm', 'rlm', 'glm'))) {
+    if(any(class(m) %in% c("lm", "rlm", "glm"))) {
 
       m_frame <- m$model
 
     } else {
 
-      if(any(class(m) %in% 'lmerMod')) {
+      if(any(class(m) %in% "lmerMod")) {
         m_frame <- m@frame
       } else {
-        stop('the provided model class is not supported')
+        stop("the provided model class is not supported")
       }
 
     }
 
 
-    if(!all(unlist(lapply(m_frame, class)) %in% c('numeric', 'character'))) stop('variables contain classes of other than numeric or character')
+    if(!all(unlist(lapply(m_frame, class)) %in% c("numeric", "character"))) stop("variables contain classes of other than numeric or character")
 
-    if(any(unlist(lapply(m_frame, class)) %in% c('character'))) {
+    if(any(unlist(lapply(m_frame, class)) %in% c("character"))) {
 
       # character variable(s) exist
 
@@ -68,8 +68,8 @@
         dplyr::summarize(dplyr::across(.cols = where(is.character),
                                        .fns = ~ dplyr::n_distinct(.x)))
 
-      if(any(n_levels > 2)) stop('Currently, this function does not support categorical variables with > 2 levels.
-                                  Consider converting the variable(s) to dummy binary variables (0, 1)')
+      if(any(n_levels > 2)) stop("Currently, this function does not support categorical variables with > 2 levels.
+                                  Consider converting the variable(s) to dummy binary variables (0, 1)")
 
       m_chr <- m_frame %>%
         dplyr::summarize(dplyr::across(.cols = where(is.character),
@@ -83,12 +83,12 @@
 
       ## combine numeric and character variables
       mod <- m_chr %>%
-        dplyr::left_join(m_dbl, by = 'id') %>%
+        dplyr::left_join(m_dbl, by = "id") %>%
         dplyr::select(-.data$id) %>%
         dplyr::tibble()
 
-      message('Character variable(s) detected in the data.
-               These variables were coverted to dummy binary variables (0, 1)')
+      message("Character variable(s) detected in the data.
+               These variables were coverted to dummy binary variables (0, 1)")
 
     } else {
 
@@ -120,13 +120,13 @@
       dplyr::mutate(id = as.numeric(rownames(.data)))
 
     df_uv <- df_v %>%
-      dplyr::left_join(m_u, by = c('row_id' = 'id')) %>%
+      dplyr::left_join(m_u, by = c("row_id" = "id")) %>%
       dplyr::rename(u1 = .data$u_input) %>%
-      dplyr::left_join(m_u, by = c('col_id' = 'id')) %>%
+      dplyr::left_join(m_u, by = c("col_id" = "id")) %>%
       dplyr::rename(u2 = .data$u_input) %>%
       dplyr::mutate(sign = ifelse(u2 - u1 >= 0, 1, -1)) %>%
-      dplyr::left_join(X, by = c('row_id' = 'id'), suffix = c('_v1', '_v2')) %>%
-      dplyr::left_join(X, by = c('col_id' = 'id'), suffix = c('_v1', '_v2'))
+      dplyr::left_join(X, by = c("row_id" = "id"), suffix = c("_v1", "_v2")) %>%
+      dplyr::left_join(X, by = c("col_id" = "id"), suffix = c("_v1", "_v2"))
 
 
     # average predictive comparison -------------------------------------------
@@ -134,7 +134,7 @@
     # input u and other variables v (note: v is v1 irrespective of input u)
     u1 <- df_uv %>% dplyr::pull(.data$u1)
     u2 <- df_uv %>% dplyr::pull(.data$u2)
-    df_v1 <- df_uv %>% dplyr::summarize(dplyr::across(dplyr::ends_with('v1')))
+    df_v1 <- df_uv %>% dplyr::summarize(dplyr::across(dplyr::ends_with("v1")))
 
     # input low
     df_uv1 <- dplyr::tibble(u1 = u1, df_v1)
@@ -146,69 +146,69 @@
     colnames(df_uv2) <- c(u, v)
     df_uv2 <- dplyr::tibble(Intercept = 1, df_uv2)
 
-    # get link function from the model object if var_transform 'null'
+    # get link function from the model object if var_transform "null"
     if(is.null(var_transform)) {
       model_family <- stats::family(m)
       var_transform <- model_family$link
     }
 
-    if(!any(var_transform %in% c('log', 'logit', 'identity'))) stop('var_transform must be either log, logit or identity')
+    if(!any(var_transform %in% c("log", "logit", "identity"))) stop("var_transform must be either log, logit or identity")
 
 
     # for model classes lm, rlm, glm
-    if(any(class(m) %in% c('lm', 'rlm', 'glm'))) {
+    if(any(class(m) %in% c("lm", "rlm", "glm"))) {
 
-      names(m$coefficients) <- c('Intercept', attributes(stats::terms(m))$term.labels)
+      names(m$coefficients) <- c("Intercept", attributes(stats::terms(m))$term.labels)
       v_var_id <- match(names(m$coefficients), names(df_uv1)) %>%
         stats::na.omit() %>%
         c()
 
       # vector of regression coefs
-      v_b <- m$coefficients[names(m$coefficients) %in% c('Intercept', u, v)] %>%
+      v_b <- m$coefficients[names(m$coefficients) %in% c("Intercept", u, v)] %>%
         data.matrix()
 
       # matrix of input and other variables
       m_uv1 <- data.matrix(df_uv1[, v_var_id])
       m_uv2 <- data.matrix(df_uv2[, v_var_id])
 
-      if(any(rownames(v_b) != colnames(m_uv1))) stop('error in matrix organization')
-      if(any(rownames(v_b) != colnames(m_uv2))) stop('error in matrix organization')
+      if(any(rownames(v_b) != colnames(m_uv1))) stop("error in matrix organization")
+      if(any(rownames(v_b) != colnames(m_uv2))) stop("error in matrix organization")
 
     }
 
     # for model class lmerMod
-    if(any(class(m) %in% 'lmerMod')) {
+    if(any(class(m) %in% "lmerMod")) {
 
-      names(m@beta) <- c('Intercept', attributes(stats::terms(m))$term.labels)
+      names(m@beta) <- c("Intercept", attributes(stats::terms(m))$term.labels)
       v_var_id <- match(names(m@beta), names(df_uv1)) %>%
         stats::na.omit() %>%
         c()
 
       # vector of regression coefs
-      v_b <- m@beta[names(m@beta) %in% c('Intercept', u, v)] %>%
+      v_b <- m@beta[names(m@beta) %in% c("Intercept", u, v)] %>%
         data.matrix()
 
       # matrix of input and other variables
       m_uv1 <- data.matrix(df_uv1[, v_var_id])
       m_uv2 <- data.matrix(df_uv2[, v_var_id])
 
-      if(any(rownames(v_b) != colnames(m_uv1))) stop('error in matrix organization')
-      if(any(rownames(v_b) != colnames(m_uv2))) stop('error in matrix organization')
+      if(any(rownames(v_b) != colnames(m_uv1))) stop("error in matrix organization")
+      if(any(rownames(v_b) != colnames(m_uv2))) stop("error in matrix organization")
 
     }
 
     # division by var_transform types
-    if(var_transform == 'identity') {
+    if(var_transform == "identity") {
       e_y1 <- m_uv1 %*% v_b
       e_y2 <- m_uv2 %*% v_b
     }
 
-    if(var_transform == 'log') {
+    if(var_transform == "log") {
       e_y1 <- exp(m_uv1 %*% v_b)
       e_y2 <- exp(m_uv2 %*% v_b)
     }
 
-    if(var_transform == 'logit') {
+    if(var_transform == "logit") {
       e_y1 <- ilogit(m_uv1 %*% v_b)
       e_y2 <- ilogit(m_uv2 %*% v_b)
     }
