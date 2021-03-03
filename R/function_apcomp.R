@@ -24,42 +24,30 @@
 
     # extract model data frame ------------------------------------------------
 
+    ## validate u input
     if (length(u) > 1) stop("u must be a single variable")
 
     if (!any(u %in% attributes(stats::terms(m))$term.labels)) {
       stop("invalid variable input u; check varaible name")
     }
 
+    ## validate v input
     if (is.null(v)) {
-
       v_var_names <- attributes(stats::terms(m))$term.labels
       v <- v_var_names[!(v_var_names %in% u)]
-
     } else {
-
       if (!all(v %in% attributes(stats::terms(m))$term.labels)) {
         stop("invalid variable input v; check varaible name")
       }
-
     }
 
 
     # division by model class
-    if (any(class(m) %in% c("lm", "rlm", "glm"))) {
-
-      m_frame <- m$model
-
-    } else {
-
-      if (any(class(m) %in% "lmerMod")) {
-        v_fixed_var <- attributes(stats::terms(m))$term.labels
-        m_frame <- m@frame %>%
-          dplyr::select(v_fixed_var)
-      } else {
+    if (!any(class(m) %in% c("lm", "rlm", "glm", "lmerMod"))) {
         stop("the provided model class is not supported")
-      }
-
     }
+
+    m_frame <- stats::model.matrix(m)
 
     # acceptable and input variable types
     var_class <- c("numeric", "integer", "character", "factor")
@@ -70,11 +58,13 @@
             Supported classses: numeric, interger, character, or factor")
     }
 
+
+    # character/factor variable transformations
     if (any(col_class %in% c("character", "factor"))) {
 
       # character/factor variable(s) exist
 
-      ## extract character variables and convert them to numeric values
+      ## extract character/factor variables and convert them to numeric values
       ## stop if there are > 2 levels in any character variable
       n_chr_levels <- m_frame %>%
         dplyr::summarize(dplyr::across(.cols = where(is.character),
