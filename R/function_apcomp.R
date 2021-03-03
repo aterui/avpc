@@ -22,7 +22,12 @@
       1 / (1 + exp(-x))
     }
 
-    # extract model data frame ------------------------------------------------
+    # model extraction --------------------------------------------------------
+
+    mod <- stats::model.matrix(m)
+    v_var_name <- colnames(mod)
+
+    # initial check -----------------------------------------------------------
 
     ## validate u input
     if (length(u) > 1) stop("u must be a single variable")
@@ -41,86 +46,9 @@
       }
     }
 
-
-    # division by model class
+    ## validate model class
     if (!any(class(m) %in% c("lm", "rlm", "glm", "lmerMod"))) {
         stop("the provided model class is not supported")
-    }
-
-    m_frame <- stats::model.matrix(m)
-
-    # acceptable and input variable types
-    var_class <- c("numeric", "integer", "character", "factor")
-    col_class <- unlist(lapply(m_frame, class))
-
-    if (!all(col_class %in% var_class)) {
-      stop("variables contain unsupported classes.
-            Supported classses: numeric, interger, character, or factor")
-    }
-
-
-    # character/factor variable transformations
-    if (any(col_class %in% c("character", "factor"))) {
-
-      # character/factor variable(s) exist
-
-      ## extract character/factor variables and convert them to numeric values
-      ## stop if there are > 2 levels in any character variable
-      n_chr_levels <- m_frame %>%
-        dplyr::summarize(dplyr::across(.cols = where(is.character),
-                                       .fns = ~ dplyr::n_distinct(.x)))
-
-      n_fct_levels <- m_frame %>%
-        dplyr::summarize(dplyr::across(.cols = where(is.factor),
-                                       .fns = ~ dplyr::n_distinct(.x)))
-
-      n_levels <- unlist(c(n_chr_levels, n_fct_levels))
-
-      if (any(n_levels > 2)) {
-        stop("Currently, this function does not support categorical variables with > 2 levels.
-              Consider converting the variable(s) to dummy binary variables (0, 1)")
-      }
-
-      ## extract character variables
-      if (any(col_class %in% c("character"))) {
-        m_chr <- m_frame %>%
-          dplyr::summarize(dplyr::across(.cols = where(is.character),
-                                         .fns = ~ as.numeric(as.factor(.x)) - 1)) %>%
-          dplyr::mutate(id = as.numeric(rownames(m_frame)))
-      } else {
-        m_chr <- NULL
-      }
-
-      ## extract factor variables
-      if (any(col_class %in% c("character"))) {
-        m_fct <- m_frame %>%
-        dplyr::summarize(dplyr::across(.cols = where(is.factor),
-                                       .fns = ~ as.numeric(.x) - 1)) %>%
-        dplyr::mutate(id = as.numeric(rownames(m_frame)))
-      } else {
-        m_fct <- NULL
-      }
-
-      ## extract numeric variables
-      m_dbl <- m_frame %>%
-        dplyr::summarize(dplyr::across(.cols = where(is.numeric))) %>%
-        dplyr::mutate(id = as.numeric(rownames(m_frame)))
-
-      ## combine numeric and character variables
-      mod <- m_chr %>%
-        dplyr::left_join(m_dbl, by = "id") %>%
-        dplyr::select(-.data$id) %>%
-        dplyr::tibble()
-
-      message("Character/factor variable(s) detected in the data.
-               These variables were coverted to dummy binary variable(s)")
-
-    } else {
-
-      # no character variable
-
-      mod <- dplyr::tibble(m_frame)
-
     }
 
 
