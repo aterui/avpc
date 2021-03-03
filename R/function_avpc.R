@@ -15,7 +15,6 @@
 #' @param var_transform
 #'
 #' @importFrom dplyr %>%
-#' @import stats
 #'
 #' @export
 
