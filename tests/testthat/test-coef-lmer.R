@@ -3,7 +3,7 @@
 
   context("test lmer coefficient equivalency")
 
-  pacman::p_load(tidyverse, avpc)
+  pacman::p_load(tidyverse)
   ilogit <- function(x) 1 / (1 + exp(-x))
 
 
