@@ -26,7 +26,7 @@
 
 # run model ---------------------------------------------------------------
 
-  m <- lme4::lmer(y ~ x1 * x2 + x3 + (1 | group))
+  m <- lme4::lmer(y ~ x1 + x2 + x3 + (1 | group))
   beta <- m@beta
   names(beta) <- NULL
 

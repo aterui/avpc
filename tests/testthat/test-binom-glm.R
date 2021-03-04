@@ -21,7 +21,7 @@
 
 # run model ---------------------------------------------------------------
 
-  m <- glm(y ~ x1 * x2 + x3, family = binomial)
+  m <- glm(y ~ x1 + x2 + x3, family = binomial)
   beta <- coef(m)
   names(beta) <- NULL
 

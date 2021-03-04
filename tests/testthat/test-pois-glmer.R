@@ -25,7 +25,7 @@
 
 # run model ---------------------------------------------------------------
 
-  m <- lme4::glmer(y ~ x1 * x2 + x3 + (1 | group), family = poisson)
+  m <- lme4::glmer(y ~ x1 + x2 + x3 + (1 | group), family = poisson)
   beta <- m@beta
   names(beta) <- NULL
 

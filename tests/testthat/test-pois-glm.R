@@ -21,7 +21,7 @@
 
 # run model ---------------------------------------------------------------
 
-  m <- glm(y ~ x1 * x2 + x3, family = poisson)
+  m <- glm(y ~ x1 + x2 + x3, family = poisson)
   beta <- coef(m)
   names(beta) <- NULL
 
