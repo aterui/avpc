@@ -3,7 +3,7 @@
 
 #' Average predictive comparisons
 #'
-#' @param m Model object. The function accepts model classes \code{"lm"}, \code{"rlm"}, \code{"glm"}, \code{"lmerMod"}
+#' @param m Model object. The function accepts model classes \code{"lm"}, \code{"rlm"}, \code{"glm"}, \code{"lmerMod"}, \code{"glmerMod"}
 #' @param u Character string indicating input variable of interest.
 #' @param v Character string indicating variables other than the input variable of interest. By default, the function uses all the variables except \code{u}.
 #' @param var_transform Function transforming the scale of the response variable. If NULL (default), the function extracts an inverse link function from the model object \code{m}. Accepts either \code{"log"}, \code{"logit"}, or \code{"identity"}.
@@ -25,7 +25,7 @@
     # model extraction --------------------------------------------------------
 
     ## validate model class
-    if (!any(class(m) %in% c("lm", "rlm", "glm", "lmerMod"))) {
+    if (!any(class(m) %in% c("lm", "rlm", "glm", "lmerMod", "glmerMod"))) {
       stop("the provided model class is not supported")
     }
 
