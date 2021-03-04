@@ -12,10 +12,10 @@
   n_sample <- 100
   n_group <- 10
 
-  x1 = rnorm(n = n_sample)
-  x2 = rnorm(n = n_sample)
-  x3 = sample(letters[1:5], size = n_sample, replace = TRUE)
-  group = gl(n = 10, k = 10)
+  x1 <- rnorm(n = n_sample)
+  x2 <- rnorm(n = n_sample)
+  x3 <- sample(letters[1:5], size = n_sample, replace = TRUE)
+  group <- gl(n = 10, k = 10)
 
   mat <- model.matrix(model.frame(~ x1 + x2 + x3))
   v_b <- runif(n = ncol(mat), -1, 1)
@@ -26,7 +26,7 @@
 
 # run model ---------------------------------------------------------------
 
-  m <- lme4::lmer(y_norm ~ x1 * x2 + x3 + (1|group))
+  m <- lme4::lmer(y_norm ~ x1 * x2 + x3 + (1 | group))
   beta <- m@beta
   names(beta) <- NULL
 

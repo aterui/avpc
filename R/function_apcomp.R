@@ -43,7 +43,7 @@
     }
 
     ## validate v input
-    if(any(v %in% u)) stop("v must be different from u")
+    if (any(v %in% u)) stop("v must be different from u")
 
     if (is.null(v)) {
       v <- v_var_name[!(v_var_name %in% c("(Intercept)", u))]
@@ -121,8 +121,7 @@
     if (any(class(m) %in% c("lm", "rlm", "glm"))) {
       v_b <- m$coefficients
     } else {
-      v_b <- m@beta
-      names(v_b) <- v_var_name
+      v_b <- stats::coef(summary(m))[, "Estimate"]
     }
 
     v_beta <- v_b[names(v_b) %in% c("(Intercept)", u, v)] %>%
@@ -160,8 +159,8 @@
     }
 
     if (var_transform == "log10") {
-      e_y1 <- 10^(m_uv1 %*% v_beta)
-      e_y2 <- 10^(m_uv2 %*% v_beta)
+      e_y1 <- 10 ^ (m_uv1 %*% v_beta)
+      e_y2 <- 10 ^ (m_uv2 %*% v_beta)
     }
 
     if (var_transform == "logit") {
