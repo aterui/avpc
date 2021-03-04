@@ -7,7 +7,7 @@
 apcomp(m, u, v = NULL, var_transform = NULL)
 }
 \arguments{
-\item{m}{Model object. The function accepts model classes \code{"lm"}, \code{"rlm"}, \code{"glm"}, \code{"lmerMod"}}
+\item{m}{Model object. The function accepts model classes \code{"lm"}, \code{"rlm"}, \code{"glm"}, \code{"lmerMod"}, \code{"glmerMod"}}
 
 \item{u}{Character string indicating input variable of interest.}
 

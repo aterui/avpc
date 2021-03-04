@@ -1,7 +1,7 @@
 
 # setup -------------------------------------------------------------------
 
-  context("test lmer coefficient equivalency")
+  context("test poisson glmer coefficient equivalency")
 
   pacman::p_load(tidyverse)
   ilogit <- function(x) 1 / (1 + exp(-x))
@@ -19,14 +19,13 @@
 
   mat <- model.matrix(model.frame(~ x1 + x2 + x3))
   v_b <- runif(n = ncol(mat), -1, 1)
-  y_norm <- rnorm(n = n_sample,
-                  mean = mat %*% v_b + rnorm(n = n_group)[group],
-                  sd = 1)
+  y <- rpois(n = n_sample,
+             lambda = exp(mat %*% v_b + rnorm(n = n_group)[group]))
 
 
 # run model ---------------------------------------------------------------
 
-  m <- lme4::lmer(y_norm ~ x1 * x2 + x3 + (1 | group))
+  m <- lme4::glmer(y ~ x1 * x2 + x3 + (1 | group), family = poisson)
   beta <- m@beta
   names(beta) <- NULL
 
@@ -34,10 +33,10 @@
 # test --------------------------------------------------------------------
 
   test_that("compare coefficients", {
-    expect_equal(apcomp(m, u = "x1")$est,
+    expect_equal(apcomp(m, u = "x1", var_transform = "identity")$est,
                  beta[2])
-    expect_equal(apcomp(m, u = "x2")$est,
+    expect_equal(apcomp(m, u = "x2", var_transform = "identity")$est,
                  beta[3])
-    expect_equal(apcomp(m, u = "x3b")$est,
+    expect_equal(apcomp(m, u = "x3b", var_transform = "identity")$est,
                  beta[4])
   })
