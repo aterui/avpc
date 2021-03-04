@@ -43,8 +43,6 @@
     }
 
     ## validate v input
-    if (any(v %in% u)) stop("v must be different from u")
-
     if (is.null(v)) {
       v <- v_var_name[!(v_var_name %in% c("(Intercept)", u))]
     } else {
@@ -53,6 +51,8 @@
                    paste(v_var_name, collapse = ", ")))
       }
     }
+
+    if (any(v %in% u)) stop("v must be different from u")
 
 
     # get pairs for u and v ---------------------------------------------------
@@ -98,14 +98,14 @@
     df_v1 <- df_uv %>% dplyr::summarize(dplyr::across(dplyr::ends_with("v1")))
 
     ## input low
-    df_uv1 <- dplyr::tibble(u1 = u1, df_v1)
-    colnames(df_uv1) <- c(u, v)
-    df_uv1 <- dplyr::tibble("(Intercept)" = 1, df_uv1)
+    df_u1v1 <- dplyr::tibble(u1 = u1, df_v1)
+    colnames(df_u1v1) <- c(u, v)
+    df_u1v1 <- dplyr::tibble("(Intercept)" = 1, df_u1v1)
 
     ## input high
-    df_uv2 <- dplyr::tibble(u2 = u2, df_v1)
-    colnames(df_uv2) <- c(u, v)
-    df_uv2 <- dplyr::tibble("(Intercept)" = 1, df_uv2)
+    df_u2v1 <- dplyr::tibble(u2 = u2, df_v1)
+    colnames(df_u2v1) <- c(u, v)
+    df_u2v1 <- dplyr::tibble("(Intercept)" = 1, df_u2v1)
 
     ## get link function from the model object if var_transform "null"
     if (is.null(var_transform)) {
@@ -128,12 +128,12 @@
       data.matrix()
 
     ## matrix of input and other variables; match variable order
-    v_var_match_id <- match(names(v_b), colnames(df_uv1)) %>%
+    v_var_match_id <- match(names(v_b), colnames(df_u1v1)) %>%
       stats::na.omit() %>%
       c()
 
-    m_uv1 <- data.matrix(df_uv1[, v_var_match_id])
-    m_uv2 <- data.matrix(df_uv2[, v_var_match_id])
+    m_uv1 <- data.matrix(df_u1v1[, v_var_match_id])
+    m_uv2 <- data.matrix(df_u2v1[, v_var_match_id])
 
     ## error check
     if (any(rownames(v_beta) != colnames(m_uv1))) {
