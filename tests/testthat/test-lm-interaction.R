@@ -26,13 +26,27 @@
   names(beta) <- NULL
 
 
+# average predictive comparison -------------------------------------------
+
+  b_x1 <- apcomp(m, u = "x1")$estimate
+
+  re <- apcomp(m, u = "x2")
+  b_x2 <- re$estimate
+  df_u2 <- re$df_u2v1
+  int_terms <- re$interaction_term
+
+  u2 <- df_u2 %>% dplyr::select("x2") %>% pull()
+  vs <- df_u2 %>%
+    dplyr::select(starts_with("x3"))
+
+  df_test1 <- as.tibble(u2 * vs) %>%
+    rename_with(.fn = ~ paste0("x2:", .x))
+  df_test2 <- df_u2 %>% dplyr::select(dplyr::all_of(int_terms))
+
+
 # test --------------------------------------------------------------------
 
-test_that("compare coefficients", {
-  expect_equal(apcomp(m, u = "x1")$est,
-               beta[2])
-  expect_equal(apcomp(m, u = "x2")$est,
-               beta[3])
-  expect_equal(apcomp(m, u = "x3b")$est,
-               beta[4])
-})
+  test_that("compare coefficients", {
+    expect_equal(b_x1, beta[2])
+    expect_equal(df_test1, df_test2)
+  })
