@@ -108,9 +108,51 @@
     df_u1v1 <- dplyr::tibble("(Intercept)" = 1, df_u1v1)
 
     ## input high
-    df_u2v1 <- dplyr::tibble(u2 = u2, df_v1)
-    colnames(df_u2v1) <- c(u, v)
-    df_u2v1 <- dplyr::tibble("(Intercept)" = 1, df_u2v1)
+    ## tf variables for interaction validation
+    tf_int <- str_detect(v, pattern = ":")
+    tf_u <- str_detect(v, pattern = u)
+    tf_uv_int <- any((tf_int + tf_u) == 2)
+
+    if (any(tf_uv_int)) {
+      ## v variables that interact with u
+      v_uv_int_id <- which((tf_int + tf_u) == 2)
+      v_v_name_uv_int <- v[v_uv_int_id]
+
+      v_v_name_split <- stringr::str_split(string = v, pattern = ":")
+      v_uv_int <- purrr::flatten_chr(sapply(X = v_uv_int_id,
+                                            FUN = function(x) v_v_name_split[[x]],
+                                            simplify = FALSE))
+      v_v_int <- v_uv_int[!(v_uv_int %in% u)]
+
+      df_u2v1_int <- df_v1 %>%
+        dplyr::select(dplyr::all_of(v_v_int))
+
+      df_u2v1_int_prod <- as_tibble(df_u2v1_int * u2)
+      colnames(df_u2v1_int_prod) <- all_of(v_v_name_uv_int)
+
+      df_u2v1 <- df_v1 %>%
+        dplyr::mutate(u2 = u2) %>%
+        dplyr::select(-dplyr::all_of(v_uv_int_id)) %>%
+        dplyr::bind_cols(dplyr::as_tibble(df_u2v1_int_prod)) %>%
+        dplyr::relocate(u2) %>%
+        dplyr::rename_with(.fn = ~ str_replace(string = .x,
+                                               pattern = "u2",
+                                               replacement = u))
+
+      message(paste("interaction term(s) that involves input u: ",
+                    paste0(v_v_name_uv_int, collapse = ", ")))
+
+      interaction_terms <- v_v_name_uv_int
+    } else {
+      df_u2v1 <- dplyr::tibble(u2 = u2, df_v1) %>%
+        dplyr::rename_with(.fn = ~ str_replace(string = .x,
+                                               pattern = "u2",
+                                               replacement = u))
+
+      df_u2v1 <- dplyr::tibble("(Intercept)" = 1, df_u2v1)
+
+      interaction_terms <- NULL
+    }
 
     ## get link function from the model object if var_transform "null"
     if (is.null(var_transform)) {
