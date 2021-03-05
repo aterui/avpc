@@ -95,11 +95,16 @@
     ## input u and other variables v (note: v is v1 irrespective of input u)
     u1 <- df_uv %>% dplyr::pull(.data$u1)
     u2 <- df_uv %>% dplyr::pull(.data$u2)
-    df_v1 <- df_uv %>% dplyr::select(dplyr::ends_with("v1"))
+    df_v1 <- df_uv %>% dplyr::select(dplyr::ends_with("v1")) %>%
+      dplyr::rename_with(.fn = ~ str_remove(string = .x,
+                                            pattern = "_v1"))
 
     ## input low
-    df_u1v1 <- dplyr::tibble(u1 = u1, df_v1)
-    colnames(df_u1v1) <- c(u, v)
+    df_u1v1 <- dplyr::tibble(u1 = u1, df_v1) %>%
+      dplyr::rename_with(.fn = ~ str_replace(string = .x,
+                                             pattern = "u1",
+                                             replacement = u))
+
     df_u1v1 <- dplyr::tibble("(Intercept)" = 1, df_u1v1)
 
     ## input high
