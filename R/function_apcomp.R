@@ -139,6 +139,8 @@
                                                pattern = "u2",
                                                replacement = u))
 
+      df_u2v1 <- dplyr::tibble("(Intercept)" = 1, df_u2v1)
+
       message(paste("interaction term(s) that involves input u: ",
                     paste0(v_v_name_uv_int, collapse = ", ")))
 
