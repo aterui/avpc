@@ -95,7 +95,7 @@
     ## input u and other variables v (note: v is v1 irrespective of input u)
     u1 <- df_uv %>% dplyr::pull(.data$u1)
     u2 <- df_uv %>% dplyr::pull(.data$u2)
-    df_v1 <- df_uv %>% dplyr::summarize(dplyr::across(dplyr::ends_with("v1")))
+    df_v1 <- df_uv %>% dplyr::select(dplyr::ends_with("v1"))
 
     ## input low
     df_u1v1 <- dplyr::tibble(u1 = u1, df_v1)
