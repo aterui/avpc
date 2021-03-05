@@ -168,9 +168,9 @@
       e_y2 <- ilogit(m_uv2 %*% v_beta)
     }
 
-    message(paste("link function used for variable transformation:",
+    message(paste("link function:",
                   var_transform,
-                  "- an inverse function was used to estimate an average predictive comparison"))
+                  "- the inverse function was used to estimate an average predictive comparison"))
 
     # estimate
     numerator <- sum(df_uv$weight * (e_y2 - e_y1) * df_uv$sign)
