@@ -228,6 +228,8 @@
 
     return(list(estimate = est,
                 df_uv = df_uv,
+                df_u1v1 = df_u1v1,
+                df_u2v1 = df_u2v1,
                 interaction_term = interaction_term))
 
   }
