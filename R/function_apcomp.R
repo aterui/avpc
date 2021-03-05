@@ -142,7 +142,7 @@
       message(paste("interaction term(s) that involves input u: ",
                     paste0(v_v_name_uv_int, collapse = ", ")))
 
-      interaction_terms <- v_v_name_uv_int
+      interaction_term <- v_v_name_uv_int
     } else {
       df_u2v1 <- dplyr::tibble(u2 = u2, df_v1) %>%
         dplyr::rename_with(.fn = ~ str_replace(string = .x,
@@ -151,7 +151,7 @@
 
       df_u2v1 <- dplyr::tibble("(Intercept)" = 1, df_u2v1)
 
-      interaction_terms <- NULL
+      interaction_term <- NULL
     }
 
     ## get link function from the model object if var_transform "null"
@@ -224,6 +224,8 @@
     denominator <- sum(df_uv$weight * (u2 - u1) * df_uv$sign)
     est <- numerator / denominator
 
-    return(list(estimate = est, df_uv = df_uv))
+    return(list(estimate = est,
+                df_uv = df_uv,
+                interaction_term = interaction_term))
 
   }
