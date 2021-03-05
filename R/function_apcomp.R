@@ -109,8 +109,8 @@
 
     ## input high
     ## tf variables for interaction validation
-    tf_int <- str_detect(v, pattern = ":")
-    tf_u <- str_detect(v, pattern = u)
+    tf_int <- stringr::str_detect(v, pattern = ":")
+    tf_u <- stringr::str_detect(v, pattern = u)
     tf_uv_int <- any((tf_int + tf_u) == 2)
 
     if (any(tf_uv_int)) {
@@ -127,8 +127,8 @@
       df_u2v1_int <- df_v1 %>%
         dplyr::select(dplyr::all_of(v_v_int))
 
-      df_u2v1_int_prod <- as_tibble(df_u2v1_int * u2)
-      colnames(df_u2v1_int_prod) <- all_of(v_v_name_uv_int)
+      df_u2v1_int_prod <- dplyr::as_tibble(df_u2v1_int * u2)
+      colnames(df_u2v1_int_prod) <- v_v_name_uv_int
 
       df_u2v1 <- df_v1 %>%
         dplyr::mutate(u2 = u2) %>%
