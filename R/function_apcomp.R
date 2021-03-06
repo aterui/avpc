@@ -60,7 +60,7 @@
       dplyr::mutate(id = as.numeric(rownames(m_x1)))
 
     ## mahalanobis distance for a set of v variables
-    m_cov <- stats::cov(m_x1)
+    m_cov <- stats::var(m_x1)
     m_dist <- apply(m_x1, 1, function(row_i) stats::mahalanobis(m_x2, row_i, m_cov))
     df_v <-  dplyr::tibble(sq_distance = c(m_dist),
                            row_id = rep(seq_len(nrow(m_dist)),
