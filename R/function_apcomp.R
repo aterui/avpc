@@ -192,31 +192,31 @@
 
     ## division by var_transform types
     if (var_transform == "identity") {
-      e_y1 <- m_uv1 %*% v_beta
-      e_y2 <- m_uv2 %*% v_beta
+      v_e_y1 <- m_uv1 %*% v_beta
+      v_e_y2 <- m_uv2 %*% v_beta
     }
 
     if (var_transform == "log") {
-      e_y1 <- exp(m_uv1 %*% v_beta)
-      e_y2 <- exp(m_uv2 %*% v_beta)
+      v_e_y1 <- exp(m_uv1 %*% v_beta)
+      v_e_y2 <- exp(m_uv2 %*% v_beta)
     }
 
     if (var_transform == "log10") {
-      e_y1 <- 10 ^ (m_uv1 %*% v_beta)
-      e_y2 <- 10 ^ (m_uv2 %*% v_beta)
+      v_e_y1 <- 10 ^ (m_uv1 %*% v_beta)
+      v_e_y2 <- 10 ^ (m_uv2 %*% v_beta)
     }
 
     if (var_transform == "logit") {
-      e_y1 <- boot::inv.logit(m_uv1 %*% v_beta)
-      e_y2 <- boot::inv.logit(m_uv2 %*% v_beta)
+      v_e_y1 <- boot::inv.logit(m_uv1 %*% v_beta)
+      v_e_y2 <- boot::inv.logit(m_uv2 %*% v_beta)
     }
 
     message(paste("link function:",
                   var_transform,
                   "- the inverse function was used to estimate an average predictive comparison"))
 
-    # estimate
-    numerator <- sum(df_uv$weight * (e_y2 - e_y1) * df_uv$sign)
+    ## estimate
+    numerator <- sum(df_uv$weight * (v_e_y2 - v_e_y1) * df_uv$sign)
     denominator <- sum(df_uv$weight * (u2 - u1) * df_uv$sign)
     est <- numerator / denominator
 
