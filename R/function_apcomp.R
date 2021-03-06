@@ -17,12 +17,6 @@
 
   apcomp <- function(m, u, v = NULL, var_transform = NULL, n_sim = 1000) {
 
-    # inverse logit function --------------------------------------------------
-
-    ilogit <- function(x) {
-      1 / (1 + exp(-x))
-    }
-
     # model extraction --------------------------------------------------------
 
     ## validate model class
@@ -213,8 +207,8 @@
     }
 
     if (var_transform == "logit") {
-      e_y1 <- ilogit(m_uv1 %*% v_beta)
-      e_y2 <- ilogit(m_uv2 %*% v_beta)
+      e_y1 <- boot::inv.logit(m_uv1 %*% v_beta)
+      e_y2 <- boot::inv.logit(m_uv2 %*% v_beta)
     }
 
     message(paste("link function:",
