@@ -161,13 +161,18 @@
       stop("var_transform must be either log, log10, logit or identity")
     }
 
-    ## get coefficients and their se
+    ## get coefficients and their S.E.
     v_b <- stats::coef(summary(m))[, "Estimate"]
     v_b_sd <- stats::coef(summary(m))[, "Std. Error"]
-    m_beta <- matrix(stats::rnorm(length(v_b) * n_sim, mean = v_b, sd = v_b_sd),
-                     nrow = length(v_b), ncol = n_sim)
+    m_b <- matrix(stats::rnorm(length(v_b) * n_sim, mean = v_b, sd = v_b_sd),
+                  nrow = length(v_b), ncol = n_sim)
+    rownames(m_b) <- names(v_b)
+
 
     v_beta <- v_b[names(v_b) %in% c("(Intercept)", u, v)] %>%
+      data.matrix()
+
+    m_beta <- m_b[rownames(m_b) %in% c("(Intercept)", u, v), ] %>%
       data.matrix()
 
     ## matrix of input and other variables; match variable order
@@ -179,11 +184,13 @@
     m_uv2 <- data.matrix(df_u2v1[, v_var_match_id])
 
     ## error check
-    if (any(rownames(v_beta) != colnames(m_uv1))) {
+    if (any(rownames(v_beta) != colnames(m_uv1)) |
+        any(rownames(m_beta) != colnames(m_uv1))) {
        stop("error in matrix organization")
     }
 
-    if (any(rownames(v_beta) != colnames(m_uv2))) {
+    if (any(rownames(v_beta) != colnames(m_uv2)) |
+        any(rownames(m_beta) != colnames(m_uv2))) {
        stop("error in matrix organization")
     }
 
