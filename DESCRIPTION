@@ -19,7 +19,8 @@ Imports:
   lme4,
   pacman,
   purrr,
-  stringr
+  stringr,
+  boot
 Roxygen: list(markdown = TRUE)
 RoxygenNote: 7.1.1
 Suggests: 
