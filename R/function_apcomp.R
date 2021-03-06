@@ -192,35 +192,64 @@
 
     ## division by var_transform types
     if (var_transform == "identity") {
+      ## point estimate
       v_e_y1 <- m_uv1 %*% v_beta
       v_e_y2 <- m_uv2 %*% v_beta
+
+      ## simulation
+      m_e_y1 <- m_uv1 %*% m_beta
+      m_e_y2 <- m_uv2 %*% m_beta
     }
 
     if (var_transform == "log") {
+      ## point estimate
       v_e_y1 <- exp(m_uv1 %*% v_beta)
       v_e_y2 <- exp(m_uv2 %*% v_beta)
+
+      ## simulation
+      m_e_y1 <- exp(m_uv1 %*% m_beta)
+      m_e_y2 <- exp(m_uv2 %*% m_beta)
     }
 
     if (var_transform == "log10") {
+      ## point estimate
       v_e_y1 <- 10 ^ (m_uv1 %*% v_beta)
       v_e_y2 <- 10 ^ (m_uv2 %*% v_beta)
+
+      ## simulation
+      m_e_y1 <- 10 ^ (m_uv1 %*% m_beta)
+      m_e_y2 <- 10 ^ (m_uv2 %*% m_beta)
     }
 
     if (var_transform == "logit") {
+      ## point estimate
       v_e_y1 <- boot::inv.logit(m_uv1 %*% v_beta)
       v_e_y2 <- boot::inv.logit(m_uv2 %*% v_beta)
+
+      ## simulation
+      m_e_y1 <- boot::inv.logit(m_uv1 %*% m_beta)
+      m_e_y2 <- boot::inv.logit(m_uv2 %*% m_beta)
     }
 
     message(paste("link function:",
                   var_transform,
                   "- the inverse function was used to estimate an average predictive comparison"))
 
-    ## estimate
-    numerator <- sum(df_uv$weight * (v_e_y2 - v_e_y1) * df_uv$sign)
-    denominator <- sum(df_uv$weight * (u2 - u1) * df_uv$sign)
-    est <- numerator / denominator
+    ## point estimate
+    numer <- sum(df_uv$weight * (v_e_y2 - v_e_y1) * df_uv$sign)
+    denom <- sum(df_uv$weight * (u2 - u1) * df_uv$sign)
+    p_est <- numer / denom
 
-    return(list(estimate = est,
+    ## simulated estimate
+    m_numer <- df_uv$weight * (m_e_y2 - m_e_y1) * df_uv$sign
+    sim_delta <- colSums(m_numer) / denom
+    est <- mean(sim_delta)
+    est_var <- sum((sim_delta - est) ^ 2) / (n_sim - 1)
+    se <- sqrt(est_var)
+
+    return(list(estimate = p_est,
+                sim_estimate = est,
+                sim_se = se,
                 df_uv = df_uv,
                 df_u1v1 = df_u1v1,
                 df_u2v1 = df_u2v1,
