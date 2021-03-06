@@ -4,7 +4,7 @@
 \alias{apcomp}
 \title{Average predictive comparisons}
 \usage{
-apcomp(m, u, v = NULL, var_transform = NULL)
+apcomp(m, u, v = NULL, var_transform = NULL, n_sim = 1000)
 }
 \arguments{
 \item{m}{Model object. The function accepts model classes \code{"lm"}, \code{"rlm"}, \code{"glm"}, \code{"lmerMod"}, \code{"glmerMod"}}
@@ -14,6 +14,8 @@ apcomp(m, u, v = NULL, var_transform = NULL)
 \item{v}{Character string indicating variables other than the input variable of interest. By default, the function uses all the variables except \code{u}.}
 
 \item{var_transform}{Function transforming the scale of the response variable. If NULL (default), the function extracts an inverse link function from the model object \code{m}. Accepts either \code{"log"}, \code{"logit"}, or \code{"identity"}.}
+
+\item{n_sim}{Number of simulations for estimating uncertainty of the average predictive comparison}
 }
 \description{
 Average predictive comparisons
