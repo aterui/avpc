@@ -34,10 +34,10 @@
 # test --------------------------------------------------------------------
 
   test_that("compare coefficients", {
-    expect_equal(apcomp(m, u = "x1")$est,
+    expect_equal(apcomp(m, u = "x1")$estimate,
                  beta[2])
-    expect_equal(apcomp(m, u = "x2")$est,
+    expect_equal(apcomp(m, u = "x2")$estimate,
                  beta[3])
-    expect_equal(apcomp(m, u = "x3b")$est,
+    expect_equal(apcomp(m, u = "x3b")$estimate,
                  beta[4])
   })

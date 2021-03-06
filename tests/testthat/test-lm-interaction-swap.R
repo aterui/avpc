@@ -1,7 +1,7 @@
 
 # setup -------------------------------------------------------------------
 
-  context("test lm interaction test")
+  context("test lm interaction test (terms swapped)")
 
   pacman::p_load(tidyverse)
   ilogit <- function(x) 1 / (1 + exp(-x))
@@ -21,7 +21,7 @@
 
 # run model ---------------------------------------------------------------
 
-  m <- lm(y ~ x1 + x2 * x3)
+  m <- lm(y ~ x1 + x3 * x2)
   beta <- coef(m)
   names(beta) <- NULL
 
@@ -37,11 +37,12 @@
 
   u2 <- df_u2 %>% dplyr::select("x2") %>% pull()
   vs <- df_u2 %>%
-    dplyr::select(starts_with("x3"))
+    dplyr::select(dplyr::starts_with("x3") & dplyr::ends_with(letters[2:5]))
 
   df_test1 <- as_tibble(u2 * vs) %>%
-    rename_with(.fn = ~ paste0("x2:", .x))
-  df_test2 <- df_u2 %>% dplyr::select(dplyr::all_of(int_terms))
+    rename_with(.fn = ~ paste0(.x, ":x2"))
+  df_test2 <- df_u2 %>%
+    dplyr::select(dplyr::all_of(int_terms))
 
 
 # test --------------------------------------------------------------------

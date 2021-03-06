@@ -1,7 +1,7 @@
 
 # setup -------------------------------------------------------------------
 
-  context("test binomial glm coefficient equivalency")
+  context("test lm u, v input error")
 
   pacman::p_load(tidyverse)
   ilogit <- function(x) 1 / (1 + exp(-x))
@@ -16,23 +16,19 @@
   x3 <- sample(letters[1:5], size = n_sample, replace = TRUE)
   mat <- stats::model.matrix(model.frame(~ x1 + x2 + x3))
   v_b <- runif(n = ncol(mat), -1, 1)
-  y <- rbinom(n = n_sample, size = 1, prob = ilogit(mat %*% v_b))
+  y <- rnorm(n = n_sample, mean = mat %*% v_b, sd = 1)
 
 
 # run model ---------------------------------------------------------------
 
-  m <- glm(y ~ x1 + x2 + x3, family = binomial)
+  m <- lm(y ~ x1 + x2 + x3)
   beta <- coef(m)
   names(beta) <- NULL
 
 
 # test --------------------------------------------------------------------
 
-  test_that("compare coefficients", {
-    expect_equal(apcomp(m, u = "x1", var_transform = "identity")$estimate,
-                 beta[2])
-    expect_equal(apcomp(m, u = "x2", var_transform = "identity")$estimate,
-                 beta[3])
-    expect_equal(apcomp(m, u = "x3b", var_transform = "identity")$estimate,
-                 beta[4])
+  test_that("invalid input name", {
+    expect_error(apcomp(m, u = "X"))
+    expect_error(apcomp(m, u = "x3"))
   })

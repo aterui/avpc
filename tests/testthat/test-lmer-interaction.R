@@ -44,7 +44,7 @@
   vs <- df_u2 %>%
     dplyr::select(starts_with("x3"))
 
-  df_test1 <- as.tibble(u2 * vs) %>%
+  df_test1 <- as_tibble(u2 * vs) %>%
     rename_with(.fn = ~ paste0("x2:", .x))
   df_test2 <- df_u2 %>% dplyr::select(dplyr::all_of(int_terms))
 
