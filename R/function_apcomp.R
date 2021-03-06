@@ -107,9 +107,9 @@
 
     ## input low
     df_u1v1 <- dplyr::tibble(u1 = u1, df_v1) %>%
-      dplyr::rename_with(.fn = ~ str_replace(string = .x,
-                                             pattern = "u1",
-                                             replacement = u))
+      dplyr::rename_with(.fn = ~ stringr::str_replace(string = .x,
+                                                      pattern = "u1",
+                                                      replacement = u))
 
     df_u1v1 <- dplyr::tibble("(Intercept)" = 1, df_u1v1)
 
