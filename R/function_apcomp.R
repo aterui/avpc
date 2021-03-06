@@ -7,6 +7,7 @@
 #' @param u Character string indicating input variable of interest.
 #' @param v Character string indicating variables other than the input variable of interest. By default, the function uses all the variables except \code{u}.
 #' @param var_transform Function transforming the scale of the response variable. If NULL (default), the function extracts an inverse link function from the model object \code{m}. Accepts either \code{"log"}, \code{"logit"}, or \code{"identity"}.
+#' @param n_sim Number of simulations for estimating uncertainty of the average predictive comparison
 #'
 #' @importFrom dplyr %>%
 #' @importFrom rlang .data
@@ -14,7 +15,7 @@
 #' @export
 
 
-  apcomp <- function(m, u, v = NULL, var_transform = NULL) {
+  apcomp <- function(m, u, v = NULL, var_transform = NULL, n_sim = 1000) {
 
     # inverse logit function --------------------------------------------------
 
@@ -166,12 +167,11 @@
       stop("var_transform must be either log, log10, logit or identity")
     }
 
-    ## get coefficients
-    if (any(class(m) %in% c("lm", "rlm", "glm"))) {
-      v_b <- m$coefficients
-    } else {
-      v_b <- stats::coef(summary(m))[, "Estimate"]
-    }
+    ## get coefficients and their se
+    v_b <- stats::coef(summary(m))[, "Estimate"]
+    v_b_sd <- stats::coef(summary(m))[, "Std. Error"]
+    m_beta <- matrix(stats::rnorm(length(v_b) * n_sim, mean = v_b, sd = v_b_sd),
+                     nrow = length(v_b), ncol = n_sim)
 
     v_beta <- v_b[names(v_b) %in% c("(Intercept)", u, v)] %>%
       data.matrix()
