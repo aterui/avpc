@@ -13,7 +13,7 @@ apcomp(m, u, v = NULL, var_transform = NULL, n_sim = 1000)
 
 \item{v}{character string indicating variables other than the input variable of interest. By default, the function uses all the variables except \code{u}.}
 
-\item{var_transform}{function transforming the scale of the response variable. If NULL (default), the function extracts an inverse link function from the model object \code{m}. Accepts either \code{"log"}, \code{"logit"}, or \code{"identity"}.}
+\item{var_transform}{function transforming the scale of the response variable. If NULL (default), the function extracts an inverse link function from the model object \code{m}. Accepts either \code{"log"}, \code{"log10"}, \code{"logit"}, or \code{"identity"}.}
 
 \item{n_sim}{number of simulations for estimating uncertainty of the average predictive comparison}
 }
