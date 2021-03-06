@@ -26,6 +26,9 @@
 
     mod <- stats::model.matrix(m) %>% dplyr::as_tibble()
     v_var_name <- colnames(mod)
+    if(length(v_var_name) < 3) {
+      stop("the model contains only one explanatory variable")
+    }
 
     # initial check -----------------------------------------------------------
 
