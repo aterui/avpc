@@ -3,11 +3,19 @@
 
 #' Average predictive comparisons
 #'
-#' @param m Model object. The function accepts model classes \code{"lm"}, \code{"rlm"}, \code{"glm"}, \code{"lmerMod"}, \code{"glmerMod"}
-#' @param u Character string indicating input variable of interest.
-#' @param v Character string indicating variables other than the input variable of interest. By default, the function uses all the variables except \code{u}.
-#' @param var_transform Function transforming the scale of the response variable. If NULL (default), the function extracts an inverse link function from the model object \code{m}. Accepts either \code{"log"}, \code{"logit"}, or \code{"identity"}.
-#' @param n_sim Number of simulations for estimating uncertainty of the average predictive comparison
+#' @param m model object. The function accepts model classes \code{"lm"}, \code{"rlm"}, \code{"glm"}, \code{"lmerMod"}, \code{"glmerMod"}
+#' @param u character string indicating input variable of interest.
+#' @param v character string indicating variables other than the input variable of interest. By default, the function uses all the variables except \code{u}.
+#' @param var_transform function transforming the scale of the response variable. If NULL (default), the function extracts an inverse link function from the model object \code{m}. Accepts either \code{"log"}, \code{"log10"}, \code{"logit"}, or \code{"identity"}.
+#' @param n_sim number of simulations for estimating uncertainty of the average predictive comparison
+#'
+#' @return \code{estimate} point estimate of average predictive comparison
+#' @return \code{sim_estimate} simulated estimate of average predictive comparison
+#' @return \code{sim_se} standard error of simulated average predictive comparison
+#' @return \code{df_uv} data frame of squared mahalanobis distance (\code{sq_distance}) with input values of u and v.
+#' @return \code{df_u1v1} data frame of u1 and v1.
+#' @return \code{df_u2v1} data frame of u2 and v1.
+#' @return \code{interaction_term} interaction terms involving input u.
 #'
 #' @importFrom dplyr %>%
 #' @importFrom rlang .data
@@ -256,6 +264,9 @@
     est <- mean(sim_delta)
     est_var <- sum((sim_delta - est) ^ 2) / (n_sim - 1)
     se <- sqrt(est_var)
+
+
+    # return ------------------------------------------------------------------
 
     return(list(estimate = p_est,
                 sim_estimate = est,

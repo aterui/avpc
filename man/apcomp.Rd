@@ -7,15 +7,30 @@
 apcomp(m, u, v = NULL, var_transform = NULL, n_sim = 1000)
 }
 \arguments{
-\item{m}{Model object. The function accepts model classes \code{"lm"}, \code{"rlm"}, \code{"glm"}, \code{"lmerMod"}, \code{"glmerMod"}}
+\item{m}{model object. The function accepts model classes \code{"lm"}, \code{"rlm"}, \code{"glm"}, \code{"lmerMod"}, \code{"glmerMod"}}
 
-\item{u}{Character string indicating input variable of interest.}
+\item{u}{character string indicating input variable of interest.}
 
-\item{v}{Character string indicating variables other than the input variable of interest. By default, the function uses all the variables except \code{u}.}
+\item{v}{character string indicating variables other than the input variable of interest. By default, the function uses all the variables except \code{u}.}
 
-\item{var_transform}{Function transforming the scale of the response variable. If NULL (default), the function extracts an inverse link function from the model object \code{m}. Accepts either \code{"log"}, \code{"logit"}, or \code{"identity"}.}
+\item{var_transform}{function transforming the scale of the response variable. If NULL (default), the function extracts an inverse link function from the model object \code{m}. Accepts either \code{"log"}, \code{"logit"}, or \code{"identity"}.}
 
-\item{n_sim}{Number of simulations for estimating uncertainty of the average predictive comparison}
+\item{n_sim}{number of simulations for estimating uncertainty of the average predictive comparison}
+}
+\value{
+\code{estimate} point estimate of average predictive comparison
+
+\code{sim_estimate} simulated estimate of average predictive comparison
+
+\code{sim_se} standard error of simulated average predictive comparison
+
+\code{df_uv} data frame of squared mahalanobis distance (\code{sq_distance}) with input values of u and v.
+
+\code{df_u1v1} data frame of u1 and v1.
+
+\code{df_u2v1} data frame of u2 and v1.
+
+\code{interaction_term} interaction terms involving input u.
 }
 \description{
 Average predictive comparisons
