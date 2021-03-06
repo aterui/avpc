@@ -141,9 +141,9 @@
         dplyr::select(-dplyr::all_of(v_uv_int_id)) %>%
         dplyr::bind_cols(dplyr::as_tibble(df_u2v1_int_prod)) %>%
         dplyr::relocate(u2) %>%
-        dplyr::rename_with(.fn = ~ str_replace(string = .x,
-                                               pattern = "u2",
-                                               replacement = u))
+        dplyr::rename_with(.fn = ~ stringr::str_replace(string = .x,
+                                                        pattern = "u2",
+                                                        replacement = u))
 
       df_u2v1 <- dplyr::tibble("(Intercept)" = 1, df_u2v1)
 
@@ -153,9 +153,9 @@
       interaction_term <- v_v_name_uv_int
     } else {
       df_u2v1 <- dplyr::tibble(u2 = u2, df_v1) %>%
-        dplyr::rename_with(.fn = ~ str_replace(string = .x,
-                                               pattern = "u2",
-                                               replacement = u))
+        dplyr::rename_with(.fn = ~ stringr::str_replace(string = .x,
+                                                        pattern = "u2",
+                                                        replacement = u))
 
       df_u2v1 <- dplyr::tibble("(Intercept)" = 1, df_u2v1)
 
