@@ -20,7 +20,8 @@ Imports:
   pacman,
   purrr,
   stringr,
-  boot
+  boot,
+  MASS
 Roxygen: list(markdown = TRUE)
 RoxygenNote: 7.1.1
 Suggests: 
