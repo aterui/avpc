@@ -7,6 +7,7 @@
 #' @param u character string indicating input variable of interest.
 #' @param v character string indicating variables other than the input variable of interest. By default, the function uses all the variables except \code{u}.
 #' @param y_scale function transforming the scale of the response variable. If NULL (default), the function extracts an inverse link function from the model object \code{m}. Accepts either \code{"log"}, \code{"log10"}, \code{"logit"}, or \code{"identity"}.
+#' @param u_scale function transforming the scale of the input variable \code{u}. Accepts either \code{"log"}, \code{"log10"}, \code{"logit"}, or \code{"identity"}. Default \code{"identity"}.
 #' @param n_sim number of simulations for estimating uncertainty of the average predictive comparison
 #'
 #' @return \code{estimate} point estimate of average predictive comparison
