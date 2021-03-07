@@ -6,7 +6,7 @@
 #' @param m model object. The function accepts model classes \code{"lm"}, \code{"rlm"}, \code{"glm"}, \code{"lmerMod"}, \code{"glmerMod"}
 #' @param u character string indicating input variable of interest.
 #' @param v character string indicating variables other than the input variable of interest. By default, the function uses all the variables except \code{u}.
-#' @param var_transform function transforming the scale of the response variable. If NULL (default), the function extracts an inverse link function from the model object \code{m}. Accepts either \code{"log"}, \code{"log10"}, \code{"logit"}, or \code{"identity"}.
+#' @param y_scale function transforming the scale of the response variable. If NULL (default), the function extracts an inverse link function from the model object \code{m}. Accepts either \code{"log"}, \code{"log10"}, \code{"logit"}, or \code{"identity"}.
 #' @param n_sim number of simulations for estimating uncertainty of the average predictive comparison
 #'
 #' @return \code{estimate} point estimate of average predictive comparison
@@ -23,7 +23,10 @@
 #' @export
 
 
-  apcomp <- function(m, u, v = NULL, var_transform = NULL, n_sim = 1000) {
+  apcomp <- function(m, u, v = NULL,
+                     y_scale = NULL,
+                     u_scale = "identity",
+                     n_sim = 1000) {
 
     # model extraction --------------------------------------------------------
 
@@ -162,14 +165,14 @@
       interaction_term <- NULL
     }
 
-    ## get link function from the model object if var_transform "null"
-    if (is.null(var_transform)) {
+    ## get link function from the model object if y_scale "null"
+    if (is.null(y_scale)) {
       model_family <- stats::family(m)
-      var_transform <- model_family$link
+      y_scale <- model_family$link
     }
 
-    if (!any(var_transform %in% c("log", "log10", "logit", "identity"))) {
-      stop("var_transform must be either log, log10, logit or identity")
+    if (!any(y_scale %in% c("log", "log10", "logit", "identity"))) {
+      stop("y_scale must be either log, log10, logit or identity")
     }
 
     ## get coefficients and their S.E.
@@ -208,8 +211,8 @@
 
     # average predictive comparison -------------------------------------------
 
-    ## division by var_transform types
-    if (var_transform == "identity") {
+    ## division by y_scale types
+    if (y_scale == "identity") {
       ## point estimate
       v_e_y1 <- m_uv1 %*% v_beta
       v_e_y2 <- m_uv2 %*% v_beta
@@ -219,7 +222,7 @@
       m_e_y2 <- m_uv2 %*% m_beta
     }
 
-    if (var_transform == "log") {
+    if (y_scale == "log") {
       ## point estimate
       v_e_y1 <- exp(m_uv1 %*% v_beta)
       v_e_y2 <- exp(m_uv2 %*% v_beta)
@@ -229,7 +232,7 @@
       m_e_y2 <- exp(m_uv2 %*% m_beta)
     }
 
-    if (var_transform == "log10") {
+    if (y_scale == "log10") {
       ## point estimate
       v_e_y1 <- 10 ^ (m_uv1 %*% v_beta)
       v_e_y2 <- 10 ^ (m_uv2 %*% v_beta)
@@ -239,7 +242,7 @@
       m_e_y2 <- 10 ^ (m_uv2 %*% m_beta)
     }
 
-    if (var_transform == "logit") {
+    if (y_scale == "logit") {
       ## point estimate
       v_e_y1 <- boot::inv.logit(m_uv1 %*% v_beta)
       v_e_y2 <- boot::inv.logit(m_uv2 %*% v_beta)
@@ -249,13 +252,37 @@
       m_e_y2 <- boot::inv.logit(m_uv2 %*% m_beta)
     }
 
-    message(paste("link function:",
-                  var_transform,
-                  "- the inverse function was used to estimate an average predictive comparison"))
+    if (y_scale != "identity") {
+      message(paste("the inverse function of ",
+                     y_scale,
+                    " was used to back-transform the response variable y"))
+    }
+
+    ## division by u_scale types
+    if (u_scale == "identity") {
+      denom <- sum(df_uv$weight * (u2 - u1) * df_uv$sign)
+    }
+
+    if (u_scale == "log") {
+      denom <- sum(df_uv$weight * (exp(u2) - exp(u1)) * df_uv$sign)
+    }
+
+    if (u_scale == "log10") {
+      denom <- sum(df_uv$weight * (10 ^ u2 - 10 ^ u1) * df_uv$sign)
+    }
+
+    if (u_scale == "logit") {
+      denom <- sum(df_uv$weight * (boot::inv.logit(u2) - boot::inv.logit(u1)) * df_uv$sign)
+    }
+
+    if (u_scale != "identity") {
+      message(paste("the inverse function of ",
+              u_scale,
+              " was used to back-transform the input variable u"))
+    }
 
     ## point estimate
     numer <- sum(df_uv$weight * (v_e_y2 - v_e_y1) * df_uv$sign)
-    denom <- sum(df_uv$weight * (u2 - u1) * df_uv$sign)
     p_est <- numer / denom
 
     ## simulated estimate
@@ -271,9 +298,9 @@
     return(list(estimate = p_est,
                 sim_estimate = est,
                 sim_se = se,
+                interaction_term = interaction_term),
                 df_uv = df_uv,
                 df_u1v1 = df_u1v1,
-                df_u2v1 = df_u2v1,
-                interaction_term = interaction_term))
+                df_u2v1 = df_u2v1)
 
   }
