@@ -29,10 +29,10 @@
 # test --------------------------------------------------------------------
 
   test_that("compare coefficients", {
-    expect_equal(apcomp(m, u = "x1", var_transform = "identity")$estimate,
+    expect_equal(apcomp(m, u = "x1", y_scale = "identity")$estimate,
                  beta[2])
-    expect_equal(apcomp(m, u = "x2", var_transform = "identity")$estimate,
+    expect_equal(apcomp(m, u = "x2", y_scale = "identity")$estimate,
                  beta[3])
-    expect_equal(apcomp(m, u = "x3b", var_transform = "identity")$estimate,
+    expect_equal(apcomp(m, u = "x3b", y_scale = "identity")$estimate,
                  beta[4])
   })

@@ -4,7 +4,7 @@
 \alias{apcomp}
 \title{Average predictive comparisons}
 \usage{
-apcomp(m, u, v = NULL, var_transform = NULL, n_sim = 1000)
+apcomp(m, u, v = NULL, y_scale = NULL, u_scale = "identity", n_sim = 1000)
 }
 \arguments{
 \item{m}{model object. The function accepts model classes \code{"lm"}, \code{"rlm"}, \code{"glm"}, \code{"lmerMod"}, \code{"glmerMod"}}
@@ -13,7 +13,9 @@ apcomp(m, u, v = NULL, var_transform = NULL, n_sim = 1000)
 
 \item{v}{character string indicating variables other than the input variable of interest. By default, the function uses all the variables except \code{u}.}
 
-\item{var_transform}{function transforming the scale of the response variable. If NULL (default), the function extracts an inverse link function from the model object \code{m}. Accepts either \code{"log"}, \code{"log10"}, \code{"logit"}, or \code{"identity"}.}
+\item{y_scale}{function transforming the scale of the response variable. If NULL (default), the function extracts an inverse link function from the model object \code{m}. Accepts either \code{"log"}, \code{"log10"}, \code{"logit"}, or \code{"identity"}.}
+
+\item{u_scale}{function transforming the scale of the input variable \code{u}. Accepts either \code{"log"}, \code{"log10"}, \code{"logit"}, or \code{"identity"}. Default \code{"identity"}.}
 
 \item{n_sim}{number of simulations for estimating uncertainty of the average predictive comparison}
 }
