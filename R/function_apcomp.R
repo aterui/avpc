@@ -299,9 +299,9 @@
     return(list(estimate = p_est,
                 sim_estimate = est,
                 sim_se = se,
-                interaction_term = interaction_term),
+                interaction_term = interaction_term,
                 df_uv = df_uv,
                 df_u1v1 = df_u1v1,
-                df_u2v1 = df_u2v1)
+                df_u2v1 = df_u2v1))
 
   }
