@@ -173,8 +173,8 @@
     }
 
     ## get coefficients and their S.E.
-    v_b <- stats::coef(summary(m))[, "Estimate"]
-    v_b_sd <- stats::coef(summary(m))[, "Std. Error"]
+    v_b <- stats::coef(summary(m))[, 1]
+    v_b_sd <- stats::coef(summary(m))[, 2]
     m_b <- matrix(stats::rnorm(length(v_b) * n_sim, mean = v_b, sd = v_b_sd),
                   nrow = length(v_b), ncol = n_sim)
     rownames(m_b) <- names(v_b)
