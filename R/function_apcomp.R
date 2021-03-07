@@ -254,9 +254,9 @@
     }
 
     if (y_scale != "identity") {
-      message(paste("the inverse function of ",
+      message(paste("the inverse function of",
                      y_scale,
-                    " was used to back-transform the response variable y"))
+                    "was used to back-transform the response variable y"))
     }
 
     ## division by u_scale types
@@ -277,9 +277,9 @@
     }
 
     if (u_scale != "identity") {
-      message(paste("the inverse function of ",
+      message(paste("the inverse function of",
               u_scale,
-              " was used to back-transform the input variable u"))
+              "was used to back-transform the input variable u"))
     }
 
     ## point estimate
