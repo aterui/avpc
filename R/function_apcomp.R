@@ -38,7 +38,7 @@
 
     mod <- stats::model.matrix(m) %>% dplyr::as_tibble()
     v_var_name <- colnames(mod)
-    if(length(v_var_name) < 3) {
+    if (length(v_var_name) < 3) {
       stop("the model contains only one explanatory variable")
     }
 
@@ -105,7 +105,8 @@
     ## input u and other variables v (note: v is v1 irrespective of input u)
     u1 <- df_uv %>% dplyr::pull(.data$u1)
     u2 <- df_uv %>% dplyr::pull(.data$u2)
-    df_v1 <- df_uv %>% dplyr::select(dplyr::ends_with("v1")) %>%
+    df_v1 <- df_uv %>%
+      dplyr::select(dplyr::ends_with("v1")) %>%
       dplyr::rename_with(.fn = ~ stringr::str_remove(string = .x,
                                                      pattern = "_v1"))
 
